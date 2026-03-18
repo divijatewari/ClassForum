@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4">Hackathon Attendance</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+    <input name="name" placeholder="Hackathon Name" required>
+
+    <input type="date" name="date" required>
+
+    <input type="time" name="time" required>
+
+    <input type="file" name="proof" required>
+
+    <button type="submit">Submit</button>
+
+</form>
+
+
+{% endblock %}

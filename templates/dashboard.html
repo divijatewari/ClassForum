@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="mb-8 text-3xl font-semibold">
+🚀 Explore Subjects
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+{% for subject in subjects %}
+
+<a href="/subject/{{subject.id}}">
+
+<div class="card">
+
+<div class="text-2xl mb-2">
+{% if subject.name == "Operating Systems" %}⚙️
+{% elif subject.name == "DBMS" %}🗄️
+{% elif subject.name == "Advanced IoT" %}📡
+{% elif subject.name == "Data Mining" %}📊
+{% elif subject.name == "DCCN" %}🌐
+{% elif subject.name == "Computer Organization and Architecture" %}💻
+{% elif subject.name == "UHV" %}🧠
+{% else %}📚
+{% endif %}
+</div>
+
+<h2 class="text-lg font-semibold">
+{{subject.name}}
+</h2>
+
+<p class="text-gray-400 text-sm mt-1">
+Explore discussions & materials
+</p>
+
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

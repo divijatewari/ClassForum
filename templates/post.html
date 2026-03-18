@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="card mb-6">
+
+<p class="text-indigo-300 text-sm mb-1">
+👤 {{post.user.username}}
+</p>
+
+<h1 class="text-xl font-semibold">{{post.title}}</h1>
+
+<p class="text-gray-400 mt-3">
+{{post.body}}
+</p>
+
+</div>
+
+<h2 class="mb-3 text-lg">Answers</h2>
+
+{% for ans in answers %}
+
+<div class="card mb-4">
+
+<p class="text-indigo-300 text-sm">
+👤 {{ans.user.username}}
+</p>
+
+<p class="mt-2">{{ans.text}}</p>
+
+<div class="mt-2">
+<a href="/vote/{{ans.id}}/up">⬆️</a>
+<span>{{ans.votes}}</span>
+<a href="/vote/{{ans.id}}/down">⬇️</a>
+</div>
+
+</div>
+
+{% endfor %}
+
+<form method="POST" class="mt-6">
+
+<textarea name="answer" placeholder="Write your answer..." class="mb-3"></textarea>
+
+<button class="btn">Post Answer</button>
+
+</form>
+
+{% endblock %}

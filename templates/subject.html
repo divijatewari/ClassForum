@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+<h1 class="text-2xl font-semibold">💬 Discussion Feed</h1>
+
+<a href="/create/{{subject}}" class="btn">
++ Ask Question
+</a>
+</div>
+
+{% for post in posts %}
+
+<a href="/post/{{post.id}}">
+<div class="card mb-5">
+
+<p class="text-indigo-300 text-sm mb-1">
+👤 {{post.user.username}}
+</p>
+
+<h2 class="text-lg font-semibold">
+{{post.title}}
+</h2>
+
+<span class="text-indigo-400 text-sm">
+#{{post.tag}}
+</span>
+
+<p class="text-gray-400 mt-2">
+{{post.body[:120]}}...
+</p>
+
+</div>
+</a>
+
+{% endfor %}
+
+<!-- TEACHER ONLY UPLOAD -->
+{% if session.get("role") == "teacher" %}
+
+<div class="mt-10">
+
+<h2 class="text-lg mb-4">📂 Upload Study Material</h2>
+
+<form method="POST" action="/upload/{{subject}}" enctype="multipart/form-data">
+
+<input type="file" name="file">
+<button class="btn mt-2">Upload</button>
+
+</form>
+
+</div>
+
+{% endif %}
+
+<!-- MATERIAL LIST -->
+{% for m in materials %}
+
+<a href="/uploads/{{m.filename}}" target="_blank">
+<div class="card mb-2">
+📄 {{m.filename}}
+</div>
+</a>
+
+{% endfor %}
+
+{% endblock %}

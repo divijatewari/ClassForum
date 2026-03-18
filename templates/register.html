@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4">Register</h2>
+
+<form method="POST">
+
+<input name="username" placeholder="Username" class="mb-3">
+
+<input name="password" type="password" placeholder="Password" class="mb-3">
+
+<select name="role" class="mb-3">
+<option value="student">Student</option>
+<option value="teacher">Teacher</option>
+</select>
+
+<!-- SUBJECT SELECT -->
+<select name="subject_id" class="mb-3">
+<option value="">Select Subject (only for teacher)</option>
+
+{% for s in subjects %}
+<option value="{{s.id}}">{{s.name}}</option>
+{% endfor %}
+
+</select>
+
+<button class="btn">Register</button>
+
+</form>
+
+{% endblock %}

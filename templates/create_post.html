@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4">Create Post</h2>
+
+<form method="POST">
+
+<input name="title" placeholder="Post Title" class="mb-3">
+
+<input name="tag" placeholder="Tag (DBMS, SQL)" class="mb-3">
+
+<textarea name="body" placeholder="Describe your question" class="mb-3"></textarea>
+
+<button class="btn">Post</button>
+
+</form>
+
+{% endblock %}
