@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div style="
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:80vh;
+">
+
+<div class="card" style="
+width:420px;
+padding:30px;
+text-align:center;
+">
+
+<!-- AVATAR -->
+<div style="
+width:80px;
+height:80px;
+border-radius:50%;
+background:#6366f1;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+margin:auto;
+margin-bottom:20px;
+">
+{{ user.username[0]|upper if user.username else "U" }}
+</div>
+
+<h2 class="text-xl mb-2">👤 Profile</h2>
+
+<p class="text-gray-400 text-sm mb-4">
+Role: {{user.role}}
+</p>
+
+<form method="POST" style="display:flex; flex-direction:column; gap:12px;">
+
+<label class="text-left text-sm text-gray-400">Username</label>
+<input name="username" value="{{user.username}}" class="input">
+
+<label class="text-left text-sm text-gray-400">New Password</label>
+<input name="password" type="password" placeholder="Enter new password" class="input">
+
+<button class="btn w-full mt-2">Update Profile</button>
+
+</form>
+
+<a href="/logout" class="mt-4 text-red-400 text-sm block">
+Logout
+</a>
+
+</div>
+
+</div>
+
+{% endblock %}
