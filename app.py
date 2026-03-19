@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, send_from_directory
+from flask import Flask, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -7,19 +7,33 @@ import cloudinary.uploader
 
 app = Flask(__name__)
 
-# SECRET
+# -----------------------
+# SECRET KEY
+# -----------------------
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")
 
-# DATABASE (for deployment)
-uri = os.environ.get("DATABASE_URL")
+# -----------------------
+# DATABASE CONFIG (SUPABASE)
+# -----------------------
+database_url = os.environ.get("DATABASE_URL")
 
-if uri and uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///database.db'
+# fallback for local
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# -----------------------
+# CLOUDINARY CONFIG (IMPORTANT)
+# -----------------------
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+)
 
 # -----------------------
 # MODELS
@@ -61,6 +75,7 @@ class Material(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(300))
     subject_id = db.Column(db.Integer)
+
 
 class Hackathon(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -116,13 +131,18 @@ def register():
     subjects = Subject.query.all()
 
     if request.method == "POST":
-        subject_id = request.form.get("subject_id")
+        username = request.form.get("username")
+
+        # ✅ FIX: prevent duplicate crash
+        existing = User.query.filter_by(username=username).first()
+        if existing:
+            return "Username already exists"
 
         user = User(
-            username=request.form["username"],
-            password=generate_password_hash(request.form["password"]),
-            role=request.form["role"],
-            subject_id=subject_id if subject_id else None
+            username=username,
+            password=generate_password_hash(request.form.get("password")),
+            role=request.form.get("role"),
+            subject_id=request.form.get("subject_id") or None
         )
 
         db.session.add(user)
@@ -137,10 +157,9 @@ def register():
 def login():
     if request.method == "POST":
 
-        user = User.query.filter_by(username=request.form["username"]).first()
+        user = User.query.filter_by(username=request.form.get("username")).first()
 
-        if user and check_password_hash(user.password, request.form["password"]):
-
+        if user and check_password_hash(user.password, request.form.get("password")):
             session["user_id"] = user.id
             session["username"] = user.username
             session["role"] = user.role
@@ -175,9 +194,9 @@ def create_post(subject):
 
     if request.method == "POST":
         post = Post(
-            title=request.form["title"],
-            body=request.form["body"],
-            tag=request.form["tag"],
+            title=request.form.get("title"),
+            body=request.form.get("body"),
+            tag=request.form.get("tag"),
             subject_id=subject,
             user_id=session.get("user_id")
         )
@@ -197,7 +216,7 @@ def post(id):
 
     if request.method == "POST":
         ans = Answer(
-            text=request.form["answer"],
+            text=request.form.get("answer"),
             post_id=id,
             user_id=session.get("user_id")
         )
@@ -222,32 +241,26 @@ def vote(id, action):
     return redirect(request.referrer)
 
 
-# 🌟 CLOUDINARY UPLOAD
 @app.route("/upload/<int:subject>", methods=["POST"])
 def upload(subject):
 
     if session.get("role") != "teacher":
         return redirect(f"/subject/{subject}")
 
-    if session.get("subject_id") != subject:
-        return "Access Denied"
-
-    file = request.files["file"]
+    file = request.files.get("file")
 
     if file:
         result = cloudinary.uploader.upload(file, resource_type="auto")
-
         file_url = result["secure_url"]
 
-        material = Material(
-            filename=file_url,
-            subject_id=subject
-        )
+        material = Material(filename=file_url, subject_id=subject)
 
         db.session.add(material)
         db.session.commit()
 
     return redirect(f"/subject/{subject}")
+
+
 @app.route("/hackathon", methods=["GET", "POST"])
 def hackathon():
 
@@ -255,16 +268,15 @@ def hackathon():
         return redirect("/login")
 
     if request.method == "POST":
-
-        file = request.files["proof"]
+        file = request.files.get("proof")
 
         result = cloudinary.uploader.upload(file, resource_type="auto")
         file_url = result["secure_url"]
 
         entry = Hackathon(
-            name=request.form["name"],
-            date=request.form["date"],
-            time=request.form["time"],
+            name=request.form.get("name"),
+            date=request.form.get("date"),
+            time=request.form.get("time"),
             proof=file_url,
             user_id=session["user_id"]
         )
@@ -275,6 +287,8 @@ def hackathon():
         return redirect("/hackathon")
 
     return render_template("hackathon.html")
+
+
 @app.route("/hackathon_list")
 def hackathon_list():
 
@@ -282,8 +296,8 @@ def hackathon_list():
         return "Access Denied"
 
     data = Hackathon.query.all()
-
     return render_template("hackathon_list.html", data=data)
+
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -295,15 +309,20 @@ def profile():
     if request.method == "POST":
         user.username = request.form.get("username")
         new_password = request.form.get("password")
+
         if new_password:
             user.password = generate_password_hash(new_password)
-        # hash in real apps
+
         db.session.commit()
         session["username"] = user.username
+
         return redirect("/profile")
 
     return render_template("profile.html", user=user)
 
+
+# -----------------------
 # RUN
+# -----------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
