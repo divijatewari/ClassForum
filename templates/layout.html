@@ -1,201 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>ClassForum</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-/* 🌌 BASE */
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    color: white;
-    background: radial-gradient(circle at top, #0f172a, #020617);
-    overflow-x: hidden;
-}
-
-/* 🌠 PARTICLES LAYER */
-#particles-js {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    z-index: -3;
-}
-
-/* 🌌 GLOW ORBS */
-.orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.3;
-    z-index: -2;
-}
-
-.orb1 {
-    width: 300px;
-    height: 300px;
-    background: #6366f1;
-    top: 10%;
-    left: 10%;
-    animation: float1 12s infinite alternate;
-}
-
-.orb2 {
-    width: 400px;
-    height: 400px;
-    background: #a855f7;
-    bottom: 10%;
-    right: 10%;
-    animation: float2 15s infinite alternate;
-}
-
-@keyframes float1 {
-    from { transform: translateY(0px); }
-    to { transform: translateY(80px); }
-}
-
-@keyframes float2 {
-    from { transform: translateY(0px); }
-    to { transform: translateY(-80px); }
-}
-
-/* 💎 GLASS CARD */
-.card {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(14px);
-    border-radius: 20px;
-    padding: 24px;
-    transition: 0.3s ease;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 50px rgba(99,102,241,0.3);
-}
-
-/* INPUT */
-input, textarea, select {
-    background: rgba(15,23,42,0.7);
-    border: 1px solid #334155;
-    padding: 12px;
-    border-radius: 12px;
-    color: white;
-    width: 100%;
-}
-
-input::placeholder, textarea::placeholder {
-    color: #94a3b8;
-}
-
-/* BUTTON */
-.btn {
-    background: linear-gradient(135deg, #6366f1, #a855f7);
-    padding: 12px 24px;
-    border-radius: 14px;
-    font-weight: 600;
-    transition: 0.25s;
-}
-
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(168,85,247,0.6);
-}
-
-/* NAVBAR */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 60px;
-}
-
-/* MAIN */
-.main {
-    width: 85%;
-    margin: auto;
-    margin-top: 40px;
-}
-
-/* ✨ CURSOR GLOW */
-.cursor-glow {
-    position: fixed;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(99,102,241,0.3), transparent);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1;
-    transform: translate(-50%, -50%);
-}
-
-</style>
-</head>
-
-<body>
-
-<!-- PARTICLES -->
-<div id="particles-js"></div>
-
-<!-- ORBS -->
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-
-<!-- CURSOR -->
-<div class="cursor-glow" id="cursor"></div>
-
-<!-- NAVBAR -->
-<div class="navbar">
-<div class="text-2xl font-bold">🌍 ClassForum</div>
-
-<div class="space-x-6">
-<a href="/home">Home</a>
-<a href="/logout">Logout</a>
-</div>
-</div>
-
-<div class="main">
+{% extends "layout.html" %}
 
 {% block content %}
-{% endblock %}
+
+<div style="
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:80vh;
+">
+
+<div class="card" style="
+width:420px;
+padding:35px;
+border-radius:20px;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(12px);
+box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+">
+
+<h2 style="
+text-align:center;
+font-size:24px;
+font-weight:bold;
+margin-bottom:25px;
+">
+📝 Register
+</h2>
+
+<form method="POST" style="display:flex; flex-direction:column; gap:15px;">
+
+<input name="username" placeholder="Username" class="input">
+
+<input name="password" type="password" placeholder="Password" class="input">
+
+<select name="role" class="input">
+<option value="student">Student</option>
+<option value="teacher">Teacher</option>
+</select>
+
+<!-- SUBJECT SELECT -->
+<select name="subject_id" class="input">
+<option value="">Select Subject (only for teacher)</option>
+
+{% for s in subjects %}
+<option value="{{s.id}}">{{s.name}}</option>
+{% endfor %}
+
+</select>
+
+<button class="btn" style="
+margin-top:10px;
+padding:10px;
+border-radius:10px;
+font-weight:600;
+">
+Register
+</button>
+
+</form>
 
 </div>
+</div>
 
-<!-- PARTICLES SCRIPT -->
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-<script>
-particlesJS("particles-js", {
-  particles: {
-    number: { value: 80 },
-    color: { value: "#6366f1" },
-    shape: { type: "circle" },
-    opacity: { value: 0.5 },
-    size: { value: 3 },
-    line_linked: {
-      enable: true,
-      distance: 150,
-      color: "#6366f1",
-      opacity: 0.3,
-      width: 1
-    },
-    move: { enable: true, speed: 2 }
-  },
-  interactivity: {
-    events: {
-      onhover: { enable: true, mode: "repulse" }
-    }
-  }
-});
-
-/* ✨ CURSOR FOLLOW */
-const cursor = document.getElementById("cursor");
-
-document.addEventListener("mousemove", e => {
-    cursor.style.left = e.clientX + "px";
-    cursor.style.top = e.clientY + "px";
-});
-</script>
-
-</body>
-</html>
+{% endblock %}
