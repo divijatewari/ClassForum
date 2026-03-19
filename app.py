@@ -21,13 +21,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# CLOUDINARY CONFIG
-cloudinary.config(
-    cloud_name="dn3xtm1be",
-    api_key="173751488986585",
-    api_secret="sL7ohgvqoBU04wKWwRpfgHAQIMM"
-)
-
 # -----------------------
 # MODELS
 # -----------------------
@@ -292,6 +285,24 @@ def hackathon_list():
 
     return render_template("hackathon_list.html", data=data)
 
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user = User.query.get(session["user_id"])
+
+    if request.method == "POST":
+        user.username = request.form.get("username")
+        new_password = request.form.get("password")
+        if new_password:
+            user.password = generate_password_hash(new_password)
+        # hash in real apps
+        db.session.commit()
+        session["username"] = user.username
+        return redirect("/profile")
+
+    return render_template("profile.html", user=user)
 
 # RUN
 if __name__ == "__main__":
